@@ -1,4 +1,4 @@
-package com.example.usuariosprimacapi.address.domain;
+package com.example.usuariosprimacapi.User.domain;
 
 public enum State {
     AMAZONAS,

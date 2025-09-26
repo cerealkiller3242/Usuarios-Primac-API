@@ -1,4 +1,4 @@
-package com.example.usuariosprimacapi.User.dto;
+package com.example.usuariosprimacapi.Agent.dto;
 
 import com.example.usuariosprimacapi.User.domain.State;
 import com.example.usuariosprimacapi.User.domain.rol;
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponseDto {
+public class AgentResponseDto {
     private Long id;
     private String username;
     private String email;
@@ -24,4 +24,8 @@ public class UserResponseDto {
     private String street;
     private String city;
     private State state;
+    private String code;
+    private String firstName;
+    private String lastName;
+    private Boolean isActive;
 }
