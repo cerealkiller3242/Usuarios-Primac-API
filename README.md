@@ -1,8 +1,8 @@
 # Usuarios-Primac-API
 
-## JWT Authentication System
+## Project Overview
 
-This project has been enhanced with JWT (JSON Web Token) authentication for improved security in login and registration processes.
+This is a RESTful API for managing users, clients, and agents in the Primac system. The API provides endpoints for CRUD operations on these entities and includes JWT authentication for secure access.
 
 ### Features
 
@@ -10,14 +10,17 @@ This project has been enhanced with JWT (JSON Web Token) authentication for impr
 - JWT-based authentication
 - Role-based authorization
 - Token validation for protected endpoints
+- CRUD operations for Users, Clients, and Agents
 - Docker and Docker Compose support for easy deployment
+
+## API Endpoints
 
 ### Authentication Endpoints
 
 #### Register a new user
 
 ```
-POST /api/auth/register
+POST /auth/register
 ```
 
 Request body:
@@ -49,7 +52,7 @@ Response:
 #### Login
 
 ```
-POST /api/auth/login
+POST /auth/login
 ```
 
 Request body:
@@ -72,6 +75,87 @@ Response:
 }
 ```
 
+### User Endpoints
+
+#### Get all users
+```
+GET /api/users
+```
+
+#### Get user by ID
+```
+GET /api/users/{id}
+```
+
+#### Create a new user
+```
+POST /api/users
+```
+
+#### Update a user
+```
+PUT /api/users/{id}
+```
+
+#### Delete a user
+```
+DELETE /api/users/{id}
+```
+
+### Client Endpoints
+
+#### Get all clients
+```
+GET /api/clients
+```
+
+#### Get client by ID
+```
+GET /api/clients/{id}
+```
+
+#### Create a new client
+```
+POST /api/clients
+```
+
+#### Update a client
+```
+PUT /api/clients/{id}
+```
+
+#### Delete a client
+```
+DELETE /api/clients/{id}
+```
+
+### Agent Endpoints
+
+#### Get all agents
+```
+GET /api/agents
+```
+
+#### Get agent by ID
+```
+GET /api/agents/{id}
+```
+
+#### Create a new agent
+```
+POST /api/agents
+```
+
+#### Update an agent
+```
+PUT /api/agents/{id}
+```
+
+#### Delete an agent
+```
+DELETE /api/agents/{id}
+```
+
 ### Using JWT Tokens
 
 After successful authentication, include the JWT token in the Authorization header for subsequent requests:
@@ -84,7 +168,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 - JWT tokens expire after 24 hours
 - Passwords are encrypted using BCrypt
-- All endpoints except `/api/auth/**` and `/h2-console/**` require authentication
+- All endpoints except `/auth/**` require authentication
 
 ### Implementation Details
 
@@ -98,16 +182,13 @@ The JWT authentication system consists of:
 
 ### Database Configuration
 
-The application uses an H2 in-memory database for development. The H2 console is available at:
+The application uses MySQL database. Configuration details:
 
 ```
-http://localhost:8080/h2-console
+spring.datasource.url=jdbc:mysql://localhost:3306/primac
+spring.datasource.username=admin
+spring.datasource.password=admin
 ```
-
-Connection details:
-- JDBC URL: `jdbc:h2:mem:testdb`
-- Username: `sa`
-- Password: `password`
 
 ## Docker Deployment
 
@@ -130,27 +211,45 @@ docker-compose up -d
 
 This will:
 - Build the Spring Boot application using the Dockerfile
-- Start the application with H2 in-memory database
+- Start the application with MySQL database
 - Expose the application on port 8080
 
 ### Accessing the Application
 
 - API: http://localhost:8080
-- H2 Console: http://localhost:8080/h2-console
+- MySQL Database: localhost:3306
 
-### Using PostgreSQL Instead of H2
+### Database Configuration in Docker
 
-The docker-compose.yml file includes a commented-out configuration for PostgreSQL. To use PostgreSQL:
+The application is configured to use MySQL. Make sure your docker-compose.yml file includes the MySQL service configuration:
 
-1. Open the docker-compose.yml file
-2. Uncomment the PostgreSQL service section
-3. Uncomment the PostgreSQL volumes section
-4. Comment out the current app service configuration
-5. Uncomment the PostgreSQL app service configuration
-6. Run Docker Compose:
+```yaml
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: primac
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
 
-```bash
-docker-compose up -d
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/primac?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
+
+volumes:
+  mysql-data:
 ```
 
 ### Stopping the Containers
