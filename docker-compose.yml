@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: usuarios-primac-db
+    environment:
+      MYSQL_DATABASE: primac
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - usuarios-primac-network
+
+  # Spring Boot application
+  app:
+    build: .
+    container_name: usuarios-primac-api
+    ports:
+      - "8080:8080"
+    environment:
+      # MySQL Configuration
+      # Corregir la URL de conexión
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/primac?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=admin
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      # JWT Configuration
+      - JWT_SECRET=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      - JWT_EXPIRATION=86400000
+    depends_on:
+      - mysql
+    restart: unless-stopped
+    networks:
+      - usuarios-primac-network
+
+networks:
+  usuarios-primac-network:
+    driver: bridge
+
+volumes:
+  mysql-data:

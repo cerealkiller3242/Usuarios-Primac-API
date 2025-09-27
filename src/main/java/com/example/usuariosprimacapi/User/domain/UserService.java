@@ -5,6 +5,7 @@ import com.example.usuariosprimacapi.User.dto.UserResponseDto;
 import com.example.usuariosprimacapi.User.infrastructure.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public List<UserResponseDto> getAllUsers() {
         return userRepository.findAll().stream()
@@ -43,7 +45,7 @@ public class UserService {
         // Update fields
         existingUser.setUsername(userRequestDto.getUsername());
         existingUser.setEmail(userRequestDto.getEmail());
-        existingUser.setPassword(userRequestDto.getPassword());
+        existingUser.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
         existingUser.setRole(userRequestDto.getRole());
         existingUser.setPhone(userRequestDto.getPhone());
         existingUser.setStreet(userRequestDto.getStreet());
@@ -66,7 +68,7 @@ public class UserService {
         return User.builder()
                 .username(userRequestDto.getUsername())
                 .email(userRequestDto.getEmail())
-                .password(userRequestDto.getPassword())
+                .password(passwordEncoder.encode(userRequestDto.getPassword()))
                 .role(userRequestDto.getRole())
                 .phone(userRequestDto.getPhone())
                 .street(userRequestDto.getStreet())
