@@ -1,5 +1,6 @@
 package com.example.usuariosprimacapi.User.domain;
 
+import com.example.usuariosprimacapi.Beneficiary.domain.Beneficiary;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Entity
@@ -54,4 +56,8 @@ public class User {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private State state;
+
+    @OneToMany
+    @JoinColumn(name = "user_id")
+    private List<Beneficiary> beneficiaries;
 }

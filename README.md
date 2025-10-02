@@ -263,3 +263,43 @@ To remove volumes when stopping:
 ```bash
 docker-compose down -v
 ```
+
+## Testing with Postman
+
+This repository includes Postman collection and environment files to help you test the API endpoints.
+
+### Importing the Postman Collection and Environment
+
+1. Download [Postman](https://www.postman.com/downloads/) if you don't have it installed
+2. Open Postman
+3. Click on "Import" in the top left corner
+4. Select the following files from the repository:
+   - `Usuarios-Primac-API.postman_collection.json`
+   - `Usuarios-Primac-API.postman_environment.json`
+5. After importing, select the "Usuarios-Primac-API Environment" from the environment dropdown in the top right corner
+
+### Using the Postman Collection
+
+The collection is organized into folders for each category of endpoints:
+
+1. **Authentication**: Contains endpoints for login and registration
+2. **Users**: Contains CRUD endpoints for user management
+3. **Clients**: Contains CRUD endpoints for client management
+4. **Agents**: Contains CRUD endpoints for agent management
+
+### Authentication Flow
+
+1. Use the "Register" or "Login" request in the Authentication folder to get a JWT token
+2. The token will be automatically saved to the environment variables
+3. All other requests will use this token for authentication
+
+### Customizing Environment Variables
+
+You can modify the following environment variables according to your setup:
+
+- `base_url`: The base URL of the API (default: http://localhost:8080)
+- `username`: Default username for login
+- `password`: Default password for login
+- `user_id`, `client_id`, `agent_id`: IDs used in requests that require an entity ID
+
+The collection is configured to automatically extract and save the JWT token from login/register responses, so you don't need to manually copy and paste it.

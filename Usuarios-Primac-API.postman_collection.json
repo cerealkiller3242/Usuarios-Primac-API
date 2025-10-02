@@ -1,0 +1,573 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6",
+		"name": "Usuarios-Primac-API",
+		"description": "Colección completa para probar todos los endpoints de la API Usuarios-Primac con autenticación JWT",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"version": {
+			"major": 1,
+			"minor": 1,
+			"patch": 0
+		}
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    const jsonResponse = pm.response.json();",
+									"    if (jsonResponse && jsonResponse.token) {",
+									"        pm.environment.set(\"token\", jsonResponse.token);",
+									"        pm.environment.set(\"current_user_id\", jsonResponse.id);",
+									"        console.log(\"Token y User ID guardados automáticamente\");",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{new_username}}\",\n    \"email\": \"{{new_email}}\",\n    \"password\": \"{{new_password}}\",\n    \"role\": \"USER\",\n    \"phone\": 987654321,\n    \"street\": \"Av. Principal 123\",\n    \"city\": \"Lima\",\n    \"state\": \"LIMA\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						},
+						"description": "Registra un nuevo usuario y obtiene un token JWT automáticamente"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    const jsonResponse = pm.response.json();",
+									"    if (jsonResponse && jsonResponse.token) {",
+									"        pm.environment.set(\"token\", jsonResponse.token);",
+									"        pm.environment.set(\"current_user_id\", jsonResponse.id);",
+									"        console.log(\"Token y User ID guardados automáticamente\");",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"{{password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Autentica un usuario y obtiene un token JWT automáticamente"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints de autenticación para login y registro"
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get All Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is array\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users"]
+						},
+						"description": "Obtiene la lista de todos los usuarios"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/{{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "{{user_id}}"]
+						},
+						"description": "Obtiene un usuario específico por ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"nuevo_usuario\",\n    \"email\": \"nuevo@example.com\",\n    \"password\": \"password123\",\n    \"role\": \"USER\",\n    \"phone\": 123456789,\n    \"street\": \"Calle Nueva 456\",\n    \"city\": \"Arequipa\",\n    \"state\": \"AREQUIPA\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users"]
+						},
+						"description": "Crea un nuevo usuario"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"usuario_actualizado\",\n    \"email\": \"actualizado@example.com\",\n    \"password\": \"newpassword123\",\n    \"role\": \"ADMIN\",\n    \"phone\": 987654321,\n    \"street\": \"Av. Actualizada 789\",\n    \"city\": \"Cusco\",\n    \"state\": \"CUSCO\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/{{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "{{user_id}}"]
+						},
+						"description": "Actualiza un usuario existente"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/{{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "{{user_id}}"]
+						},
+						"description": "Elimina un usuario"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints de gestión de usuarios"
+		},
+		{
+			"name": "Clients",
+			"item": [
+				{
+					"name": "Get All Clients",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/clients",
+							"host": ["{{base_url}}"],
+							"path": ["api", "clients"]
+						},
+						"description": "Obtiene la lista de todos los clientes"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Client by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/clients/{{client_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "clients", "{{client_id}}"]
+						},
+						"description": "Obtiene un cliente específico por ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Client",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Empresa Cliente SAC\",\n    \"contactName\": \"María García\",\n    \"email\": \"maria.garcia@empresacliente.com\",\n    \"phone\": 987654321,\n    \"street\": \"Jr. Comercio 123\",\n    \"city\": \"Lima\",\n    \"state\": \"LIMA\",\n    \"businessType\": \"RETAIL\",\n    \"status\": \"ACTIVE\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/clients",
+							"host": ["{{base_url}}"],
+							"path": ["api", "clients"]
+						},
+						"description": "Crea un nuevo cliente"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Client",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Empresa Cliente Actualizada SAC\",\n    \"contactName\": \"María García Actualizada\",\n    \"email\": \"maria.actualizada@empresacliente.com\",\n    \"phone\": 123456789,\n    \"street\": \"Av. Actualizada 456\",\n    \"city\": \"Trujillo\",\n    \"state\": \"LA_LIBERTAD\",\n    \"businessType\": \"SERVICES\",\n    \"status\": \"ACTIVE\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/clients/{{client_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "clients", "{{client_id}}"]
+						},
+						"description": "Actualiza un cliente existente"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Client",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/clients/{{client_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "clients", "{{client_id}}"]
+						},
+						"description": "Elimina un cliente"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints de gestión de clientes"
+		},
+		{
+			"name": "Agents",
+			"item": [
+				{
+					"name": "Get All Agents",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/agents",
+							"host": ["{{base_url}}"],
+							"path": ["api", "agents"]
+						},
+						"description": "Obtiene la lista de todos los agentes"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Agent by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/agents/{{agent_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "agents", "{{agent_id}}"]
+						},
+						"description": "Obtiene un agente específico por ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Agent",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Carlos Rodríguez\",\n    \"email\": \"carlos.rodriguez@primac.com\",\n    \"phone\": 987654321,\n    \"street\": \"Av. Agentes 789\",\n    \"city\": \"Lima\",\n    \"state\": \"LIMA\",\n    \"department\": \"SALES\",\n    \"specialization\": \"Soluciones Empresariales\",\n    \"status\": \"ACTIVE\",\n    \"hireDate\": \"2024-01-15\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/agents",
+							"host": ["{{base_url}}"],
+							"path": ["api", "agents"]
+						},
+						"description": "Crea un nuevo agente"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Agent",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Carlos Rodríguez Actualizado\",\n    \"email\": \"carlos.actualizado@primac.com\",\n    \"phone\": 123456789,\n    \"street\": \"Jr. Agentes Actualizados 456\",\n    \"city\": \"Chiclayo\",\n    \"state\": \"LAMBAYEQUE\",\n    \"department\": \"SUPPORT\",\n    \"specialization\": \"Soporte Técnico Avanzado\",\n    \"status\": \"ACTIVE\",\n    \"hireDate\": \"2024-01-15\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/agents/{{agent_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "agents", "{{agent_id}}"]
+						},
+						"description": "Actualiza un agente existente"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Agent",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/agents/{{agent_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "agents", "{{agent_id}}"]
+						},
+						"description": "Elimina un agente"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints de gestión de agentes"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Script que se ejecuta antes de cada request",
+					"console.log('Ejecutando request a: ' + pm.request.url);"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-extrae y guarda el token JWT de las respuestas de login/register",
+					"if (pm.response.code === 200 || pm.response.code === 201) {",
+					"    try {",
+					"        const jsonResponse = pm.response.json();",
+					"        if (jsonResponse && jsonResponse.token) {",
+					"            pm.environment.set(\"token\", jsonResponse.token);",
+					"            console.log(\"✅ Token JWT guardado automáticamente en el entorno\");",
+					"        }",
+					"        if (jsonResponse && jsonResponse.id) {",
+					"            pm.environment.set(\"current_user_id\", jsonResponse.id);",
+					"            console.log(\"✅ ID de usuario guardado automáticamente\");",
+					"        }",
+					"    } catch (e) {",
+					"        console.log(\"ℹ️ Respuesta no contiene JSON válido\");",
+					"    }",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "client_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "agent_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "username",
+			"value": "admin",
+			"type": "string"
+		},
+		{
+			"key": "password",
+			"value": "admin123",
+			"type": "string"
+		},
+		{
+			"key": "new_username",
+			"value": "testuser",
+			"type": "string"
+		},
+		{
+			"key": "new_email",
+			"value": "test@example.com",
+			"type": "string"
+		},
+		{
+			"key": "new_password",
+			"value": "test123",
+			"type": "string"
+		},
+		{
+			"key": "current_user_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

@@ -86,4 +86,8 @@ public class AuthService {
                 savedUser.getRole()
         );
     }
+
+    public boolean verifyToken(String token) {
+        return jwtUtils.validateJwtToken(token);
+    }
 }
