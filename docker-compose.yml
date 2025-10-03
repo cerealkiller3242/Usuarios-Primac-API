@@ -1,23 +1,6 @@
 version: '3.8'
 
 services:
-  # MySQL Database
-  mysql:
-    image: mysql:8.0
-    container_name: usuarios-primac-db
-    environment:
-      MYSQL_DATABASE: primac
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: admin
-      MYSQL_ROOT_PASSWORD: root
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql-data:/var/lib/mysql
-    restart: unless-stopped
-    networks:
-      - usuarios-primac-network
-
   # Spring Boot application
   app:
     build: .
@@ -27,7 +10,7 @@ services:
     environment:
       # Server Configuration
       - SERVER_PORT=8085
-      # MySQL Configuration with timezone settings
+      # MySQL Configuration with timezone settings (External DB)
       - DATASOURCE_URL=jdbc:mysql://44.220.130.153:3307/primac?createDatabaseIfNotExist=true&useTimezone=true&serverTimezone=UTC&useLegacyDatetimeCode=false&allowPublicKeyRetrieval=true&useSSL=false
       - DB_USERNAME=admin
       - DB_PASSWORD=admin
@@ -37,8 +20,6 @@ services:
       # Timezone Configuration
       - TZ=UTC
       - SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_TIME_ZONE=UTC
-    depends_on:
-      - mysql
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8085/actuator/health"]
@@ -46,12 +27,3 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    networks:
-      - usuarios-primac-network
-
-networks:
-  usuarios-primac-network:
-    driver: bridge
-
-volumes:
-  mysql-data:
