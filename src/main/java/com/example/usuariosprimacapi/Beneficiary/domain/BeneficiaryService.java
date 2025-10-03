@@ -2,11 +2,14 @@ package com.example.usuariosprimacapi.Beneficiary.domain;
 
 import com.example.usuariosprimacapi.Beneficiary.dto.BeneficiaryRequestDto;
 import com.example.usuariosprimacapi.Beneficiary.dto.BeneficiaryResponseDto;
+import com.example.usuariosprimacapi.Beneficiary.dto.BeneficiaryPatchDto;
 import com.example.usuariosprimacapi.Beneficiary.infrastructure.BeneficiaryRepository;
-import com.example.usuariosprimacapi.User.domain.User;
-import com.example.usuariosprimacapi.User.infrastructure.UserRepository;
+import com.example.usuariosprimacapi.Client.domain.Client;
+import com.example.usuariosprimacapi.Client.infrastructure.ClientRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,25 +20,36 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BeneficiaryService {
     private final BeneficiaryRepository beneficiaryRepository;
-    private final UserRepository userRepository;
+    private final ClientRepository clientRepository;
 
+    public Page<BeneficiaryResponseDto> getAllBeneficiaries(Pageable pageable) {
+        return beneficiaryRepository.findAllWithClientAndUser(pageable)
+                .map(this::mapToResponseDto);
+    }
+    
+    public Page<BeneficiaryResponseDto> searchBeneficiaries(String firstName, String lastName, String documentNumber, Long clientId, Pageable pageable) {
+        return beneficiaryRepository.findBySearchCriteria(firstName, lastName, documentNumber, clientId, pageable)
+                .map(this::mapToResponseDto);
+    }
+
+    // Método legacy para compatibilidad (no recomendado para 20k registros)
     public List<BeneficiaryResponseDto> getAllBeneficiaries() {
-        return beneficiaryRepository.findAll().stream()
+        return beneficiaryRepository.findAllWithClientAndUser().stream()
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());
     }
 
     public BeneficiaryResponseDto getBeneficiaryById(Long id) {
-        Beneficiary beneficiary = beneficiaryRepository.findById(id)
+        Beneficiary beneficiary = beneficiaryRepository.findByIdWithClientAndUser(id)
                 .orElseThrow(() -> new EntityNotFoundException("Beneficiary not found with id: " + id));
         return mapToResponseDto(beneficiary);
     }
 
     public BeneficiaryResponseDto createBeneficiary(BeneficiaryRequestDto beneficiaryRequestDto) {
-        User user = userRepository.findById(beneficiaryRequestDto.getUserId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + beneficiaryRequestDto.getUserId()));
+        Client client = clientRepository.findById(beneficiaryRequestDto.getClientId())
+                .orElseThrow(() -> new EntityNotFoundException("Client not found with id: " + beneficiaryRequestDto.getClientId()));
         
-        Beneficiary beneficiary = mapToEntity(beneficiaryRequestDto, user);
+        Beneficiary beneficiary = mapToEntity(beneficiaryRequestDto, client);
         beneficiary.setCreatedAt(LocalDateTime.now());
         beneficiary.setUpdatedAt(LocalDateTime.now());
         
@@ -47,21 +61,67 @@ public class BeneficiaryService {
         Beneficiary existingBeneficiary = beneficiaryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Beneficiary not found with id: " + id));
         
-        User user = userRepository.findById(beneficiaryRequestDto.getUserId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + beneficiaryRequestDto.getUserId()));
+        Client client = clientRepository.findById(beneficiaryRequestDto.getClientId())
+                .orElseThrow(() -> new EntityNotFoundException("Client not found with id: " + beneficiaryRequestDto.getClientId()));
 
         // Update fields
-        existingBeneficiary.setFirst_name(beneficiaryRequestDto.getFirst_name());
-        existingBeneficiary.setLast_name(beneficiaryRequestDto.getLast_name());
-        existingBeneficiary.setDocument_type(beneficiaryRequestDto.getDocument_type());
-        existingBeneficiary.setDocument_number(beneficiaryRequestDto.getDocument_number());
-        existingBeneficiary.setBirth_date(beneficiaryRequestDto.getBirth_date());
+        existingBeneficiary.setFirstName(beneficiaryRequestDto.getFirstName());
+        existingBeneficiary.setLastName(beneficiaryRequestDto.getLastName());
+        existingBeneficiary.setDocumentType(beneficiaryRequestDto.getDocumentType());
+        existingBeneficiary.setDocumentNumber(beneficiaryRequestDto.getDocumentNumber());
+        existingBeneficiary.setBirthDate(beneficiaryRequestDto.getBirthDate());
         existingBeneficiary.setRelationship(beneficiaryRequestDto.getRelationship());
-        existingBeneficiary.setUser(user);
+        existingBeneficiary.setClient(client);
         existingBeneficiary.setUpdatedAt(LocalDateTime.now());
 
         Beneficiary updatedBeneficiary = beneficiaryRepository.save(existingBeneficiary);
         return mapToResponseDto(updatedBeneficiary);
+    }
+
+    public BeneficiaryResponseDto patchBeneficiary(Long id, BeneficiaryPatchDto beneficiaryPatchDto) {
+        Beneficiary existingBeneficiary = beneficiaryRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Beneficiary not found with id: " + id));
+        
+        boolean updated = false;
+        
+        // Update fields only if they are provided
+        if (beneficiaryPatchDto.getFirstName() != null) {
+            existingBeneficiary.setFirstName(beneficiaryPatchDto.getFirstName());
+            updated = true;
+        }
+        if (beneficiaryPatchDto.getLastName() != null) {
+            existingBeneficiary.setLastName(beneficiaryPatchDto.getLastName());
+            updated = true;
+        }
+        if (beneficiaryPatchDto.getDocumentType() != null) {
+            existingBeneficiary.setDocumentType(beneficiaryPatchDto.getDocumentType());
+            updated = true;
+        }
+        if (beneficiaryPatchDto.getDocumentNumber() != null) {
+            existingBeneficiary.setDocumentNumber(beneficiaryPatchDto.getDocumentNumber());
+            updated = true;
+        }
+        if (beneficiaryPatchDto.getBirthDate() != null) {
+            existingBeneficiary.setBirthDate(beneficiaryPatchDto.getBirthDate());
+            updated = true;
+        }
+        if (beneficiaryPatchDto.getRelationship() != null) {
+            existingBeneficiary.setRelationship(beneficiaryPatchDto.getRelationship());
+            updated = true;
+        }
+        if (beneficiaryPatchDto.getClientId() != null) {
+            Client client = clientRepository.findById(beneficiaryPatchDto.getClientId())
+                    .orElseThrow(() -> new EntityNotFoundException("Client not found with id: " + beneficiaryPatchDto.getClientId()));
+            existingBeneficiary.setClient(client);
+            updated = true;
+        }
+        
+        if (updated) {
+            existingBeneficiary.setUpdatedAt(LocalDateTime.now());
+            existingBeneficiary = beneficiaryRepository.save(existingBeneficiary);
+        }
+        
+        return mapToResponseDto(existingBeneficiary);
     }
 
     public void deleteBeneficiary(Long id) {
@@ -71,30 +131,30 @@ public class BeneficiaryService {
         beneficiaryRepository.deleteById(id);
     }
 
-    private Beneficiary mapToEntity(BeneficiaryRequestDto beneficiaryRequestDto, User user) {
+    private Beneficiary mapToEntity(BeneficiaryRequestDto beneficiaryRequestDto, Client client) {
         return Beneficiary.builder()
-                .first_name(beneficiaryRequestDto.getFirst_name())
-                .last_name(beneficiaryRequestDto.getLast_name())
-                .document_type(beneficiaryRequestDto.getDocument_type())
-                .document_number(beneficiaryRequestDto.getDocument_number())
-                .birth_date(beneficiaryRequestDto.getBirth_date())
+                .firstName(beneficiaryRequestDto.getFirstName())
+                .lastName(beneficiaryRequestDto.getLastName())
+                .documentType(beneficiaryRequestDto.getDocumentType())
+                .documentNumber(beneficiaryRequestDto.getDocumentNumber())
+                .birthDate(beneficiaryRequestDto.getBirthDate())
                 .relationship(beneficiaryRequestDto.getRelationship())
-                .user(user)
+                .client(client)
                 .build();
     }
 
     private BeneficiaryResponseDto mapToResponseDto(Beneficiary beneficiary) {
         return BeneficiaryResponseDto.builder()
                 .id(beneficiary.getId())
-                .first_name(beneficiary.getFirst_name())
-                .last_name(beneficiary.getLast_name())
-                .document_type(beneficiary.getDocument_type())
-                .document_number(beneficiary.getDocument_number())
-                .birth_date(beneficiary.getBirth_date())
+                .firstName(beneficiary.getFirstName())
+                .lastName(beneficiary.getLastName())
+                .documentType(beneficiary.getDocumentType())
+                .documentNumber(beneficiary.getDocumentNumber())
+                .birthDate(beneficiary.getBirthDate())
                 .relationship(beneficiary.getRelationship())
                 .createdAt(beneficiary.getCreatedAt())
                 .updatedAt(beneficiary.getUpdatedAt())
-                .userId(beneficiary.getUser() != null ? beneficiary.getUser().getId() : null)
+                .clientId(beneficiary.getClient() != null ? beneficiary.getClient().getUserId() : null)
                 .build();
     }
 }

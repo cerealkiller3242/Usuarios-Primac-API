@@ -23,21 +23,29 @@ services:
     build: .
     container_name: usuarios-primac-api
     ports:
-      - "8080:8080"
+      - "8085:8085"
     environment:
-      # MySQL Configuration
-      # Corregir la URL de conexión
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/primac?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
-      - SPRING_DATASOURCE_USERNAME=admin
-      - SPRING_DATASOURCE_PASSWORD=admin
-      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      # Server Configuration
+      - SERVER_PORT=8085
+      # MySQL Configuration with timezone settings
+      - DATASOURCE_URL=jdbc:mysql://44.220.130.153:3307/primac?createDatabaseIfNotExist=true&useTimezone=true&serverTimezone=UTC&useLegacyDatetimeCode=false&allowPublicKeyRetrieval=true&useSSL=false
+      - DB_USERNAME=admin
+      - DB_PASSWORD=admin
       # JWT Configuration
       - JWT_SECRET=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
       - JWT_EXPIRATION=86400000
+      # Timezone Configuration
+      - TZ=UTC
+      - SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_TIME_ZONE=UTC
     depends_on:
       - mysql
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     networks:
       - usuarios-primac-network
 

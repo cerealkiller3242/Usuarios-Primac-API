@@ -1,13 +1,14 @@
 package com.example.usuariosprimacapi.User.domain;
 
-import com.example.usuariosprimacapi.Beneficiary.domain.Beneficiary;
+import com.example.usuariosprimacapi.Agent.domain.Agent;
+import com.example.usuariosprimacapi.Client.domain.Client;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,9 +43,11 @@ public class User {
     private int phone;
 
     @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
     @Column(nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
 
     @Column(nullable = false)
@@ -57,7 +60,11 @@ public class User {
     @Enumerated(EnumType.STRING)
     private State state;
 
-    @OneToMany
-    @JoinColumn(name = "user_id")
-    private List<Beneficiary> beneficiaries;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Client client;
+    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Agent> agents;
 }

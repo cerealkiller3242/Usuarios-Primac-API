@@ -1,0 +1,960 @@
+{
+	"info": {
+		"_postman_id": "12345678-1234-1234-1234-123456789012",
+		"name": "Usuarios-Primac-API-Fixed",
+		"description": "API para manejo de usuarios, clientes, agentes y beneficiarios de Primac con paginación optimizada",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('token', response.token);",
+									"    console.log('Token guardado:', response.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login"]
+						},
+						"description": "Autenticación para obtener el token JWT"
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('token', response.token);",
+									"    console.log('Usuario registrado y token guardado:', response.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"nuevo_usuario\",\n    \"email\": \"nuevo@example.com\",\n    \"password\": \"password123\",\n    \"role\": \"USER\",\n    \"phone\": 987654321,\n    \"street\": \"Av. Registro 123\",\n    \"city\": \"Lima\",\n    \"state\": \"LIMA\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "register"]
+						},
+						"description": "Registro de nuevo usuario - devuelve token automáticamente"
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Token",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/verify?token={{token}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "verify"],
+							"query": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"description": "JWT Token a verificar"
+								}
+							]
+						},
+						"description": "Verifica si un token JWT es válido"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users"]
+						},
+						"description": "Obtiene los primeros 100 usuarios (para compatibilidad)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Users (Paginated)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/paginated?page=0&size=20",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "paginated"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0",
+									"description": "Número de página (empezando en 0)"
+								},
+								{
+									"key": "size",
+									"value": "20",
+									"description": "Elementos por página"
+								}
+							]
+						},
+						"description": "Obtiene todos los usuarios con paginación para manejar grandes volúmenes de datos"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/{{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "{{user_id}}"]
+						},
+						"description": "Obtiene un usuario por su ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"nuevo_usuario\",\n    \"email\": \"nuevo@example.com\",\n    \"password\": \"password123\",\n    \"phone\": 987654321,\n    \"street\": \"Av. Ejemplo 123\",\n    \"city\": \"Lima\",\n    \"state\": \"LIMA\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users"]
+						},
+						"description": "Crea un nuevo usuario"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"usuario_actualizado\",\n    \"email\": \"actualizado@example.com\",\n    \"password\": \"newpassword123\",\n    \"phone\": 123456789,\n    \"street\": \"Av. Actualizada 456\",\n    \"city\": \"Arequipa\",\n    \"state\": \"AREQUIPA\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/{{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "{{user_id}}"]
+						},
+						"description": "Actualiza un usuario existente (todos los campos)"
+					},
+					"response": []
+				},
+				{
+					"name": "Patch User (PATCH)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"usuario_parcial\",\n    \"phone\": 999888777\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/{{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "{{user_id}}"]
+						},
+						"description": "Actualiza parcialmente un usuario (solo los campos especificados)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/{{user_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "{{user_id}}"]
+						},
+						"description": "Elimina un usuario"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Clients",
+			"item": [
+				{
+					"name": "Get All Clients (Paginated)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/clients?page=0&size=10&sort=userId,asc",
+							"host": ["{{base_url}}"],
+							"path": ["api", "clients"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0",
+									"description": "Número de página (empezando en 0)"
+								},
+								{
+									"key": "size",
+									"value": "10",
+									"description": "Elementos por página"
+								},
+								{
+									"key": "sort",
+									"value": "userId,asc",
+									"description": "Ordenamiento (campo,dirección)"
+								}
+							]
+						},
+						"description": "Obtiene todos los clientes con paginación (RECOMENDADO para 20k registros)"
+					},
+					"response": []
+				},
+				{
+					"name": "Search Clients",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/clients/search?firstName=Juan&page=0&size=10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "clients", "search"],
+							"query": [
+								{
+									"key": "firstName",
+									"value": "Juan",
+									"description": "Buscar por nombre (opcional)"
+								},
+								{
+									"key": "lastName",
+									"value": "",
+									"description": "Buscar por apellido (opcional)",
+									"disabled": true
+								},
+								{
+									"key": "documentNumber",
+									"value": "",
+									"description": "Buscar por número de documento (opcional)",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Busca clientes con filtros y paginación"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Client by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/clients/{{client_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "clients", "{{client_id}}"]
+						},
+						"description": "Obtiene un cliente por su ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Client",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"cliente_nuevo\",\n    \"email\": \"cliente@example.com\",\n    \"password\": \"password123\",\n    \"phone\": 987654321,\n    \"street\": \"Av. Cliente 123\",\n    \"city\": \"Lima\",\n    \"state\": \"LIMA\",\n    \"firstName\": \"María\",\n    \"lastName\": \"García\",\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"12345678\",\n    \"birthDate\": \"1990-05-15\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/clients",
+							"host": ["{{base_url}}"],
+							"path": ["api", "clients"]
+						},
+						"description": "Crea un nuevo cliente"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Client (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"cliente_actualizado\",\n    \"email\": \"cliente.actualizado@example.com\",\n    \"password\": \"newpassword123\",\n    \"phone\": 123456789,\n    \"street\": \"Av. Actualizada 456\",\n    \"city\": \"Trujillo\",\n    \"state\": \"LA_LIBERTAD\",\n    \"firstName\": \"María Actualizada\",\n    \"lastName\": \"García López\",\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"87654321\",\n    \"birthDate\": \"1991-06-16\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/clients/{{client_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "clients", "{{client_id}}"]
+						},
+						"description": "Actualiza un cliente existente (todos los campos)"
+					},
+					"response": []
+				},
+				{
+					"name": "Patch Client (PATCH)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"María Parcial\",\n    \"phone\": 555666777\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/clients/{{client_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "clients", "{{client_id}}"]
+						},
+						"description": "Actualiza parcialmente un cliente (solo los campos especificados)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Client",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/clients/{{client_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "clients", "{{client_id}}"]
+						},
+						"description": "Elimina un cliente"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Agents",
+			"item": [
+				{
+					"name": "Get All Agents (Paginated)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/agents?page=0&size=10&sort=id,asc",
+							"host": ["{{base_url}}"],
+							"path": ["api", "agents"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0",
+									"description": "Número de página (empezando en 0)"
+								},
+								{
+									"key": "size",
+									"value": "10",
+									"description": "Elementos por página"
+								},
+								{
+									"key": "sort",
+									"value": "id,asc",
+									"description": "Ordenamiento (campo,dirección)"
+								}
+							]
+						},
+						"description": "Obtiene todos los agentes con paginación"
+					},
+					"response": []
+				},
+				{
+					"name": "Search Agents",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/agents/search?firstName=Carlos&code=AG&page=0&size=10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "agents", "search"],
+							"query": [
+								{
+									"key": "firstName",
+									"value": "Carlos",
+									"description": "Buscar por nombre (opcional)"
+								},
+								{
+									"key": "lastName",
+									"value": "",
+									"description": "Buscar por apellido (opcional)",
+									"disabled": true
+								},
+								{
+									"key": "code",
+									"value": "AG",
+									"description": "Buscar por código (opcional)"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Busca agentes con filtros y paginación"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Agent by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/agents/{{agent_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "agents", "{{agent_id}}"]
+						},
+						"description": "Obtiene un agente por su ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Agent",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": {{user_id}},\n    \"agentCode\": \"AG001\",\n    \"specialization\": \"SEGUROS_GENERALES\",\n    \"commissionRate\": 7.5,\n    \"status\": \"ACTIVO\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/agents",
+							"host": ["{{base_url}}"],
+							"path": ["api", "agents"]
+						},
+						"description": "Crea un nuevo agente"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Agent (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": {{user_id}},\n    \"agentCode\": \"AG002\",\n    \"specialization\": \"VIDA_Y_SALUD\",\n    \"commissionRate\": 8.5,\n    \"status\": \"ACTIVO\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/agents/{{agent_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "agents", "{{agent_id}}"]
+						},
+						"description": "Actualiza un agente existente (todos los campos)"
+					},
+					"response": []
+				},
+				{
+					"name": "Patch Agent (PATCH)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"commissionRate\": 9.0,\n    \"status\": \"INACTIVO\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/agents/{{agent_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "agents", "{{agent_id}}"]
+						},
+						"description": "Actualiza parcialmente un agente (solo los campos especificados)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Agent",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/agents/{{agent_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "agents", "{{agent_id}}"]
+						},
+						"description": "Elimina un agente"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Beneficiaries",
+			"item": [
+				{
+					"name": "Get All Beneficiaries (Paginated)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/beneficiaries?page=0&size=10&sort=id,asc",
+							"host": ["{{base_url}}"],
+							"path": ["api", "beneficiaries"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0",
+									"description": "Número de página (empezando en 0)"
+								},
+								{
+									"key": "size",
+									"value": "10",
+									"description": "Elementos por página"
+								},
+								{
+									"key": "sort",
+									"value": "id,asc",
+									"description": "Ordenamiento (campo,dirección)"
+								}
+							]
+						},
+						"description": "Obtiene todos los beneficiarios con paginación"
+					},
+					"response": []
+				},
+				{
+					"name": "Search Beneficiaries",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/beneficiaries/search?firstName=Ana&clientId=1&page=0&size=10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "beneficiaries", "search"],
+							"query": [
+								{
+									"key": "firstName",
+									"value": "Ana",
+									"description": "Buscar por nombre (opcional)"
+								},
+								{
+									"key": "lastName",
+									"value": "",
+									"description": "Buscar por apellido (opcional)",
+									"disabled": true
+								},
+								{
+									"key": "documentNumber",
+									"value": "",
+									"description": "Buscar por número de documento (opcional)",
+									"disabled": true
+								},
+								{
+									"key": "clientId",
+									"value": "1",
+									"description": "Filtrar por cliente específico (opcional)"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Busca beneficiarios con filtros y paginación"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Beneficiary by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/beneficiaries/{{beneficiary_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "beneficiaries", "{{beneficiary_id}}"]
+						},
+						"description": "Obtiene un beneficiario por su ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Beneficiary",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"Ana\",\n    \"lastName\": \"Pérez\",\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"23456789\",\n    \"birthDate\": \"1995-03-20\",\n    \"relationship\": \"HIJA\",\n    \"clientId\": {{client_id}}\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/beneficiaries",
+							"host": ["{{base_url}}"],
+							"path": ["api", "beneficiaries"]
+						},
+						"description": "Crea un nuevo beneficiario"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Beneficiary (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"Ana Actualizada\",\n    \"lastName\": \"Pérez López\",\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"87654321\",\n    \"birthDate\": \"1995-06-16\",\n    \"relationship\": \"HIJA\",\n    \"clientId\": {{client_id}}\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/beneficiaries/{{beneficiary_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "beneficiaries", "{{beneficiary_id}}"]
+						},
+						"description": "Actualiza un beneficiario existente (todos los campos)"
+					},
+					"response": []
+				},
+				{
+					"name": "Patch Beneficiary (PATCH)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"Ana Parcial\",\n    \"relationship\": \"SOBRINA\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/beneficiaries/{{beneficiary_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "beneficiaries", "{{beneficiary_id}}"]
+						},
+						"description": "Actualiza parcialmente un beneficiario (solo los campos especificados)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Beneficiary",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/beneficiaries/{{beneficiary_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "beneficiaries", "{{beneficiary_id}}"]
+						},
+						"description": "Elimina un beneficiario"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8085",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "client_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "agent_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "beneficiary_id",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}

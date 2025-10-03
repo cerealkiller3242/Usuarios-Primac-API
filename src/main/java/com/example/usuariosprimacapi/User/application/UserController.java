@@ -3,8 +3,10 @@ package com.example.usuariosprimacapi.User.application;
 import com.example.usuariosprimacapi.User.domain.UserService;
 import com.example.usuariosprimacapi.User.dto.UserRequestDto;
 import com.example.usuariosprimacapi.User.dto.UserResponseDto;
+import com.example.usuariosprimacapi.User.dto.UserPatchDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,13 @@ public class UserController {
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
+    
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<UserResponseDto>> getAllUsersPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(userService.getAllUsersPaginated(page, size));
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
@@ -35,6 +44,11 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDto> updateUser(@PathVariable Long id, @Valid @RequestBody UserRequestDto userRequestDto) {
         return ResponseEntity.ok(userService.updateUser(id, userRequestDto));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<UserResponseDto> patchUser(@PathVariable Long id, @Valid @RequestBody UserPatchDto userPatchDto) {
+        return ResponseEntity.ok(userService.patchUser(id, userPatchDto));
     }
 
     @DeleteMapping("/{id}")
