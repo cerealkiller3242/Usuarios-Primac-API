@@ -27,7 +27,7 @@ public class RegisterRequest {
     private rol role;
 
     @NotNull
-    private int phone;
+    private String phone;
 
     @NotBlank
     private String street;
