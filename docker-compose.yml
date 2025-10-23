@@ -11,7 +11,7 @@ services:
       # Server Configuration
       - SERVER_PORT=8085
       # MySQL Configuration with timezone settings (External DB)
-      - DATASOURCE_URL=jdbc:mysql://44.220.130.153:3307/primac?createDatabaseIfNotExist=true&useTimezone=true&serverTimezone=UTC&useLegacyDatetimeCode=false&allowPublicKeyRetrieval=true&useSSL=false
+      - DATASOURCE_URL=jdbc:mysql://mysql:3306/primac
       - DB_USERNAME=admin
       - DB_PASSWORD=admin
       # JWT Configuration
@@ -21,9 +21,15 @@ services:
       - TZ=UTC
       - SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_TIME_ZONE=UTC
     restart: unless-stopped
+    networks:
+      - primac
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8085/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+
+networks:
+  primac:
+    external: true
