@@ -18,7 +18,7 @@ public class UserResponseDto {
     private String username;
     private String email;
     private rol role;
-    private Integer phone;
+    private String phone;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String street;

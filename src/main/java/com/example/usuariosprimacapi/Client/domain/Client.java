@@ -1,48 +1,53 @@
 package com.example.usuariosprimacapi.Client.domain;
+
 import com.example.usuariosprimacapi.User.domain.User;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Table(name = "clients")
+@Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Client {
     @Id
-    @Column(name = "user_id")
-    private Long userId; // This will be the same as the User's ID
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     
-    @Column(nullable = false)
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
+    
+    @Column(name = "first_name", nullable = false, length = 50)
     private String firstName;
     
-    @Column(nullable = false)
+    @Column(name = "last_name", nullable = false, length = 50)
     private String lastName;
     
-    @Column(nullable = false)
-    private String documentType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "document_type", nullable = false)
+    private DocumentType documentType;
     
-    @Column(nullable = false, unique = true)
+    @Column(name = "document_number", nullable = false, unique = true, length = 20)
     private String documentNumber;
     
-    @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date birthDate;
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
     
-    @Column(nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
     
-    @Column(nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @MapsId
-    @JoinColumn(name = "user_id")
-    private User user;
+    
+    public Long getUserId() {
+        return user.getId();
+}
 }

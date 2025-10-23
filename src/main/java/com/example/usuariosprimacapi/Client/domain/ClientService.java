@@ -5,7 +5,6 @@ import com.example.usuariosprimacapi.Client.dto.ClientResponseDto;
 import com.example.usuariosprimacapi.Client.dto.ClientPatchDto;
 import com.example.usuariosprimacapi.Client.infrastructure.ClientRepository;
 import com.example.usuariosprimacapi.User.domain.User;
-import com.example.usuariosprimacapi.User.domain.rol;
 import com.example.usuariosprimacapi.User.infrastructure.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -51,25 +50,18 @@ public class ClientService {
 
     @Transactional
     public ClientResponseDto createClient(ClientRequestDto clientRequestDto) {
-        // Create and save User first
-        User user = User.builder()
-                .username(clientRequestDto.getUsername())
-                .email(clientRequestDto.getEmail())
-                .password(passwordEncoder.encode(clientRequestDto.getPassword()))
-                .phone(clientRequestDto.getPhone())
-                .street(clientRequestDto.getStreet())
-                .city(clientRequestDto.getCity())
-                .state(clientRequestDto.getState())
-                .role(rol.USER)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
+        // Find existing user by ID
+        User existingUser = userRepository.findById(clientRequestDto.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + clientRequestDto.getUserId()));
         
-        User savedUser = userRepository.save(user);
+        // Verify that the user is not already associated with another client
+        if (clientRepository.existsByUserId(existingUser.getId())) {
+            throw new IllegalStateException("User is already associated with another client");
+        }
         
-        // Create Client with reference to saved User
+        // Create Client with reference to existing User
         Client client = Client.builder()
-                .user(savedUser)
+                .user(existingUser)
                 .firstName(clientRequestDto.getFirstName())
                 .lastName(clientRequestDto.getLastName())
                 .documentType(clientRequestDto.getDocumentType())
@@ -88,23 +80,24 @@ public class ClientService {
         Client existingClient = clientRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Client not found with id: " + id));
         
-        // Update User fields
-        User user = existingClient.getUser();
-        user.setUsername(clientRequestDto.getUsername());
-        user.setEmail(clientRequestDto.getEmail());
-        user.setPassword(passwordEncoder.encode(clientRequestDto.getPassword()));
-        user.setPhone(clientRequestDto.getPhone());
-        user.setStreet(clientRequestDto.getStreet());
-        user.setCity(clientRequestDto.getCity());
-        user.setState(clientRequestDto.getState());
-        user.setUpdatedAt(LocalDateTime.now());
-        
-        userRepository.save(user);
+        // If userId is different, verify the new user exists and is not already a client
+        if (!existingClient.getUser().getId().equals(clientRequestDto.getUserId())) {
+            User newUser = userRepository.findById(clientRequestDto.getUserId())
+                    .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + clientRequestDto.getUserId()));
+            
+            if (clientRepository.existsByUserId(clientRequestDto.getUserId())) {
+                throw new IllegalStateException("User is already associated with another client");
+            }
+            
+            existingClient.setUser(newUser);
+        }
         
         // Update Client fields
         existingClient.setFirstName(clientRequestDto.getFirstName());
         existingClient.setLastName(clientRequestDto.getLastName());
         existingClient.setDocumentType(clientRequestDto.getDocumentType());
+        existingClient.setDocumentNumber(clientRequestDto.getDocumentNumber());
+        existingClient.setBirthDate(clientRequestDto.getBirthDate());
         existingClient.setUpdatedAt(LocalDateTime.now());
         
         Client updatedClient = clientRepository.save(existingClient);
@@ -115,6 +108,18 @@ public class ClientService {
     public ClientResponseDto patchClient(Long id, ClientPatchDto clientPatchDto) {
         Client existingClient = clientRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Client not found with id: " + id));
+        
+        // Handle user change if userId is provided
+        if (clientPatchDto.getUserId() != null && !existingClient.getUser().getId().equals(clientPatchDto.getUserId())) {
+            User newUser = userRepository.findById(clientPatchDto.getUserId())
+                    .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + clientPatchDto.getUserId()));
+            
+            if (clientRepository.existsByUserId(clientPatchDto.getUserId())) {
+                throw new IllegalStateException("User is already associated with another client");
+            }
+            
+            existingClient.setUser(newUser);
+        }
         
         User user = existingClient.getUser();
         boolean userUpdated = false;
@@ -178,7 +183,7 @@ public class ClientService {
             clientUpdated = true;
         }
         
-        if (clientUpdated || userUpdated) {
+        if (clientUpdated || userUpdated || clientPatchDto.getUserId() != null) {
             existingClient.setUpdatedAt(LocalDateTime.now());
             existingClient = clientRepository.save(existingClient);
         }
@@ -191,9 +196,8 @@ public class ClientService {
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Client not found with id: " + id));
         
-        User user = client.getUser();
+        // Only delete the client, not the user (user might be used elsewhere)
         clientRepository.delete(client);
-        userRepository.delete(user);
     }
 
     private ClientResponseDto mapToResponseDto(Client client) {

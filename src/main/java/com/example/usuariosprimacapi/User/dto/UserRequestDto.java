@@ -29,7 +29,7 @@ public class UserRequestDto {
     private rol role;
 
     @NotNull(message = "Phone is required")
-    private Integer phone;
+    private String phone;
 
     @NotBlank(message = "Street is required")
     private String street;

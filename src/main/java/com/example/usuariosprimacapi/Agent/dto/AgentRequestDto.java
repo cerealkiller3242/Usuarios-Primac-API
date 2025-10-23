@@ -1,7 +1,6 @@
 package com.example.usuariosprimacapi.Agent.dto;
 
 import com.example.usuariosprimacapi.User.domain.State;
-import com.example.usuariosprimacapi.User.domain.rol;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -26,7 +25,7 @@ public class AgentRequestDto {
     private String password;
 
     @NotNull(message = "Phone is required")
-    private Integer phone;
+    private String phone;
 
     @NotBlank(message = "Street is required")
     private String street;

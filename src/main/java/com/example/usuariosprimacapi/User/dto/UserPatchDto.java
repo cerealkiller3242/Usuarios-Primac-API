@@ -22,7 +22,7 @@ public class UserPatchDto {
     
     private rol role;
     
-    private Integer phone;
+    private String phone;
     
     private String street;
     

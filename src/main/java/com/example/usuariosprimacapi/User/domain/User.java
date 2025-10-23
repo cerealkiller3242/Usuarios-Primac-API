@@ -4,7 +4,6 @@ import com.example.usuariosprimacapi.Agent.domain.Agent;
 import com.example.usuariosprimacapi.Client.domain.Client;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,7 +27,6 @@ public class User {
     @Column(nullable = false)
     private String username;
 
-    @Email
     @Column(nullable = false, unique = true)
     private String email;
 
@@ -39,8 +37,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private rol role;
 
-    @Column(nullable = false, unique = true)
-    private int phone;
+    @Column(name = "phone", length = 20)
+    private String phone;
 
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -56,8 +54,8 @@ public class User {
     @Column(nullable = false)
     private String city;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    @Column(name = "state")
     private State state;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -67,4 +65,36 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Agent> agents;
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

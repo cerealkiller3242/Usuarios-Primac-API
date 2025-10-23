@@ -19,7 +19,7 @@ public class AgentPatchDto {
     
     private String password;
     
-    private Integer phone;
+    private String phone;
     
     private String street;
     

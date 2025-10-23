@@ -15,25 +15,24 @@ import java.util.Optional;
 public interface ClientRepository extends JpaRepository<Client, Long> {
     
     @Query("SELECT c FROM Client c JOIN FETCH c.user")
-    List<Client> findAllWithUser();
-    
-    @Query("SELECT c FROM Client c JOIN FETCH c.user WHERE c.userId = :id")
-    Optional<Client> findByIdWithUser(Long id);
-    
-    @Query(value = "SELECT c FROM Client c JOIN FETCH c.user",
-           countQuery = "SELECT COUNT(c) FROM Client c")
     Page<Client> findAllWithUser(Pageable pageable);
     
-    @Query(value = "SELECT c FROM Client c JOIN FETCH c.user WHERE " +
-           "(:firstName IS NULL OR LOWER(c.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))) AND " +
-           "(:lastName IS NULL OR LOWER(c.lastName) LIKE LOWER(CONCAT('%', :lastName, '%'))) AND " +
-           "(:documentNumber IS NULL OR c.documentNumber LIKE CONCAT('%', :documentNumber, '%'))",
-           countQuery = "SELECT COUNT(c) FROM Client c WHERE " +
+    @Query("SELECT c FROM Client c JOIN FETCH c.user")
+    List<Client> findAllWithUser();
+    
+    @Query("SELECT c FROM Client c JOIN FETCH c.user WHERE c.id = :id")
+    Optional<Client> findByIdWithUser(@Param("id") Long id);
+    
+    @Query("SELECT c FROM Client c JOIN FETCH c.user WHERE " +
            "(:firstName IS NULL OR LOWER(c.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))) AND " +
            "(:lastName IS NULL OR LOWER(c.lastName) LIKE LOWER(CONCAT('%', :lastName, '%'))) AND " +
            "(:documentNumber IS NULL OR c.documentNumber LIKE CONCAT('%', :documentNumber, '%'))")
-    Page<Client> findBySearchCriteria(@Param("firstName") String firstName,
-                                     @Param("lastName") String lastName,
-                                     @Param("documentNumber") String documentNumber,
+    Page<Client> findBySearchCriteria(@Param("firstName") String firstName, 
+                                     @Param("lastName") String lastName, 
+                                     @Param("documentNumber") String documentNumber, 
                                      Pageable pageable);
+       
+    boolean existsByUserId(Long userId);
+       
+    
 }
