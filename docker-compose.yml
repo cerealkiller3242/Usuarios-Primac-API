@@ -11,7 +11,7 @@ services:
       # Server Configuration
       - SERVER_PORT=8085
       # MySQL Configuration with timezone settings (External DB)
-      - DATASOURCE_URL=jdbc:mysql://54.89.235.121:3306/primac
+      - DATASOURCE_URL=jdbc:mysql://54.89.235.121:3307/primac
       - DB_USERNAME=admin
       - DB_PASSWORD=admin
       # JWT Configuration
